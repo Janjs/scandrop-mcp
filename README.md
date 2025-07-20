@@ -1,3 +1,5 @@
+> ⚠️ **Notice:** This is a work in progress. The goal is to turn this into an MCP server (Model Context Protocol).
+
 # AR 3D Copy&Paste
 
 Demo of the project showing its functionality: https://youtu.be/B52r1ccVacU	
