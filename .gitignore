@@ -1,23 +1,39 @@
-# See LICENSE folder for this sample’s licensing information.
-#
-# Apple sample code gitignore configuration.
-
-# Finder
+# OS/editor artifacts
 .DS_Store
+.idea/
+.vscode/
 
-# Xcode - User files
-xcuserdata/
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.python-version
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+build/
+dist/
+*.egg-info/
 
-.vscode
+# Local runtime data
+data/
+.uv-cache/
 
-**/*.xcodeproj/project.xcworkspace/*
-!**/*.xcodeproj/project.xcworkspace/xcshareddata
+# Web / Next.js
+web/node_modules/
+web/.next/
+web/out/
+web/.turbo/
+web/.vercel/
+web/coverage/
+web/npm-debug.log*
+web/yarn-debug.log*
+web/yarn-error.log*
 
-**/*.xcodeproj/project.xcworkspace/xcshareddata/*
-!**/*.xcodeproj/project.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings
-
-**/*.playground/playground.xcworkspace/*
-!**/*.playground/playground.xcworkspace/xcshareddata
-
-**/*.playground/playground.xcworkspace/xcshareddata/*
-!**/*.playground/playground.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings
+# Local web env
+web/.env.local
