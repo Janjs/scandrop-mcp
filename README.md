@@ -2,7 +2,7 @@
 
 Minimal but real MCP server that ingests a GLB/GLTF scan and exposes deterministic spatial tools over a compact derived scene graph.
 
-## What v0 does
+## What it does
 
 - Loads `.glb` / `.gltf` mesh exports (including Polycam free-plan outputs).
 - Derives a compact spatial database:
