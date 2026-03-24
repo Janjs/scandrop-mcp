@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 export async function GET(_request: Request, context: { params: Promise<{ sceneId: string }> }): Promise<NextResponse> {
   try {
     const { sceneId } = await context.params;
-    const data = await callMcpTool("scandrop.get_scene_summary", { scene_id: sceneId });
+    const data = await callMcpTool("get_scene_summary", { scene_id: sceneId });
     return NextResponse.json(data);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to load summary";

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from scandrop_mcp.mcp_tools import mcp
+from scandrop.mcp_tools import mcp
 
 
 def main() -> None:

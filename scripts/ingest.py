@@ -9,12 +9,12 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from scandrop_mcp.pipeline.import_gltf import create_scene_from_gltf
-from scandrop_mcp.store import FileSceneStore
+from scandrop.pipeline.import_gltf import create_scene_from_gltf
+from scandrop.store import FileSceneStore
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Ingest a GLB/GLTF file into scandrop-mcp scene storage.")
+    parser = argparse.ArgumentParser(description="Ingest a GLB/GLTF file into scandrop scene storage.")
     parser.add_argument("path", help="Local path to .glb or .gltf file")
     args = parser.parse_args()
 

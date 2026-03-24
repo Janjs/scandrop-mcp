@@ -1,8 +1,13 @@
-# scandrop MCP
+# scandrop
 
 Minimal but real MCP server that ingests a GLB/GLTF scan and exposes deterministic spatial tools over a compact derived scene graph.
 
-## What it does
+<p>
+  <img src="docs/screenshots/claude-ingest-pipeline.png" alt="Claude Desktop ingest pipeline" width="49%" />
+  <img src="docs/screenshots/claude-bedside-placement.png" alt="Claude Desktop bedside placement result" width="49%" />
+</p>
+
+## What scandrop MCP does
 
 - Loads `.glb` / `.gltf` mesh exports (including Polycam free-plan outputs).
 - Derives a compact spatial database:
@@ -42,7 +47,7 @@ Example output:
 ### 2) Run MCP server (stdio)
 
 ```bash
-python -m scandrop_mcp.main
+python -m scandrop.main
 ```
 
 ### 2b) Configure MCP clients (e.g., Claude Desktop)
@@ -56,8 +61,7 @@ Claude Desktop config (`claude_desktop_config.json`):
   "mcpServers": {
     "scandrop": {
       "command": "uv",
-      "args": ["run", "python", "-m", "scandrop_mcp.main"],
-      "cwd": "/absolute/path/to/scandrop"
+      "args": ["run", "--project", "/absolute/path/to/scandrop", "python", "-m", "scandrop.main"]
     }
   }
 }
@@ -70,12 +74,21 @@ Generic MCP client config shape:
   "servers": {
     "scandrop": {
       "command": "uv",
-      "args": ["run", "python", "-m", "scandrop_mcp.main"],
-      "cwd": "/absolute/path/to/scandrop"
+      "args": ["run", "--project", "/absolute/path/to/scandrop", "python", "-m", "scandrop.main"]
     }
   }
 }
 ```
+
+### 2c) Load a scene (recommended user flow)
+
+In Claude Desktop, users only need to provide a path to the 3D model:
+
+```text
+Please onboard this 3D model: /Users/jan/Downloads/test.glb
+```
+
+Scandrop handles scene creation, status, and summary internally via `onboard_scene`.
 
 ### 3) Run FastAPI debug server (optional)
 
@@ -83,9 +96,37 @@ Generic MCP client config shape:
 python scripts/run_api.py --reload
 ```
 
+## Claude Desktop tutorial (attach + ingest a GLB)
+
+Use this flow when you have both connectors enabled:
+
+- `filesystem` connector (to read files from your machine)
+- `scandrop` MCP server (this repo)
+- A GLB/GLTF scan export (for example from [Polycam](https://poly.cam/))
+
+1. Place your `.glb` file in a folder exposed by filesystem, for example `/Users/jan/Downloads/test.glb`.
+2. Send this prompt:
+
+```text
+Please onboard this 3D model: /Users/jan/Downloads/test.glb
+```
+
+3. The assistant runs onboarding in one step and returns:
+- `scene_id` and `version`
+- processing status (usually `ready`)
+- scene summary (bounds, floor area, obstacle count)
+
+4. Ask a placement question, for example:
+
+```text
+Where do I fit a bedside table by the bed?
+```
+
+For the full web app tutorial and UI screenshot, see [web/README.md](web/README.md).
+
 ## MCP tools
 
-### `scandrop.create_scene_from_gltf`
+### `create_scene_from_gltf`
 
 Input:
 
@@ -99,7 +140,30 @@ Output:
 { "scene_id": "ab12cd34ef56", "version": 1 }
 ```
 
-### `scandrop.get_processing_status`
+### `onboard_scene`
+
+Input:
+
+```json
+{ "path": "/absolute/path/to/scan.glb" }
+```
+
+Output:
+
+```json
+{
+  "scene_id": "ab12cd34ef56",
+  "version": 1,
+  "status": { "status": "ready", "message": null },
+  "summary": {
+    "bounds_aabb": { "min": [0.0, -0.1, -2.0], "max": [5.2, 2.8, 4.4] },
+    "floor_area_m2": 17.42,
+    "obstacle_count": 6
+  }
+}
+```
+
+### `get_processing_status`
 
 Input:
 
@@ -113,7 +177,7 @@ Output:
 { "status": "ready", "message": null }
 ```
 
-### `scandrop.get_scene_summary`
+### `get_scene_summary`
 
 Input:
 
@@ -131,7 +195,7 @@ Output:
 }
 ```
 
-### `scandrop.get_scene_graph`
+### `get_scene_graph`
 
 Input:
 
@@ -149,7 +213,7 @@ Output:
 }
 ```
 
-### `scandrop.check_fit`
+### `check_fit`
 
 Input:
 
@@ -171,7 +235,7 @@ Output:
 }
 ```
 
-### `scandrop.find_free_spaces`
+### `find_free_spaces`
 
 Input:
 
@@ -201,7 +265,7 @@ Output:
 }
 ```
 
-### `scandrop.list_scenes`
+### `list_scenes`
 
 Input:
 
@@ -260,13 +324,15 @@ Output:
 - Determinism: fixed random seed for mesh surface sampling, deterministic sorting for obstacle IDs and candidate ranking.
 - Semantic labels are heuristic and currently include broad classes such as `bed`, `kitchen`, `table`, `storage`, and `unknown`.
 
-## Next.js Workbench
+## Web App Workbench
 
 A UI app is included at `./web` with:
 
 - source model viewer (GLB/GLTF)
 - derived spatial representation viewer (floor + obstacles)
 - MCP-backed chat panel with prompt chips
+
+![Scandrop web bedside table placement](docs/screenshots/web-bedside-placement.png)
 
 Run it:
 

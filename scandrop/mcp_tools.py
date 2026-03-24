@@ -4,45 +4,63 @@ from typing import Any
 
 from mcp.server.fastmcp import FastMCP
 
-from scandrop_mcp.pipeline.import_gltf import create_scene_from_gltf
-from scandrop_mcp.pipeline.placement import check_fit, find_free_spaces
-from scandrop_mcp.schemas import (
+from scandrop.pipeline.import_gltf import create_scene_from_gltf
+from scandrop.pipeline.placement import check_fit, find_free_spaces
+from scandrop.schemas import (
     CheckFitRequest,
     CreateSceneFromGltfRequest,
     FindFreeSpacesRequest,
 )
-from scandrop_mcp.store import FileSceneStore
+from scandrop.store import FileSceneStore
 
 store = FileSceneStore()
-mcp = FastMCP("scandrop-mcp")
+mcp = FastMCP("scandrop")
 
 
-@mcp.tool(name="scandrop.create_scene_from_gltf")
+@mcp.tool(name="create_scene_from_gltf")
 def tool_create_scene_from_gltf(path: str) -> dict[str, Any]:
     request = CreateSceneFromGltfRequest(path=path)
     scene_id, version = create_scene_from_gltf(path=request.path, store=store)
     return {"scene_id": scene_id, "version": version}
 
 
-@mcp.tool(name="scandrop.get_processing_status")
+@mcp.tool(name="onboard_scene")
+def tool_onboard_scene(path: str) -> dict[str, Any]:
+    """
+    One-step scene onboarding for chat UX.
+    Input only needs the local GLB/GLTF path.
+    """
+    request = CreateSceneFromGltfRequest(path=path)
+    scene_id, version = create_scene_from_gltf(path=request.path, store=store)
+    status = store.get_status(scene_id=scene_id)
+    summary = store.get_summary(scene_id=scene_id, version=version)
+    return {
+        "scene_id": scene_id,
+        "version": version,
+        "status": status.model_dump(mode="json"),
+        "summary": summary.model_dump(mode="json"),
+    }
+
+
+@mcp.tool(name="get_processing_status")
 def tool_get_processing_status(scene_id: str) -> dict[str, Any]:
     status = store.get_status(scene_id=scene_id)
     return status.model_dump(mode="json")
 
 
-@mcp.tool(name="scandrop.get_scene_summary")
+@mcp.tool(name="get_scene_summary")
 def tool_get_scene_summary(scene_id: str, version: int | None = None) -> dict[str, Any]:
     summary = store.get_summary(scene_id=scene_id, version=version)
     return summary.model_dump(mode="json")
 
 
-@mcp.tool(name="scandrop.get_scene_graph")
+@mcp.tool(name="get_scene_graph")
 def tool_get_scene_graph(scene_id: str, version: int | None = None) -> dict[str, Any]:
     scene_graph = store.load_scene_graph(scene_id=scene_id, version=version)
     return scene_graph.model_dump(mode="json")
 
 
-@mcp.tool(name="scandrop.find_free_spaces")
+@mcp.tool(name="find_free_spaces")
 def tool_find_free_spaces(
     scene_id: str,
     size_m: tuple[float, float, float],
@@ -73,7 +91,7 @@ def tool_find_free_spaces(
     return result.model_dump(mode="json")
 
 
-@mcp.tool(name="scandrop.check_fit")
+@mcp.tool(name="check_fit")
 def tool_check_fit(
     scene_id: str,
     size_m: tuple[float, float, float],
@@ -98,7 +116,7 @@ def tool_check_fit(
     return result.model_dump(mode="json")
 
 
-@mcp.tool(name="scandrop.list_scenes")
+@mcp.tool(name="list_scenes")
 def tool_list_scenes() -> list[dict[str, Any]]:
     scenes = store.list_scenes()
     return [entry.model_dump(mode="json") for entry in scenes]

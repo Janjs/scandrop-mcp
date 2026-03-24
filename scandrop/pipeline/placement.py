@@ -6,7 +6,7 @@ from typing import Any
 import numpy as np
 from shapely.geometry import Point, Polygon
 
-from scandrop_mcp.schemas import (
+from scandrop.schemas import (
     CheckFitResponse,
     FindFreeSpacesResponse,
     FreeSpaceCandidate,

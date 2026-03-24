@@ -6,16 +6,16 @@ from typing import Any
 
 from fastapi import FastAPI, HTTPException, Request
 
-from scandrop_mcp.pipeline.import_gltf import create_scene_from_gltf
-from scandrop_mcp.schemas import (
+from scandrop.pipeline.import_gltf import create_scene_from_gltf
+from scandrop.schemas import (
     CreateSceneFromGltfResponse,
     ImportSceneByPathRequest,
     SceneGraphModel,
     SceneSummaryResponse,
 )
-from scandrop_mcp.store import FileSceneStore
+from scandrop.store import FileSceneStore
 
-app = FastAPI(title="scandrop-mcp API", version="0.1.0")
+app = FastAPI(title="scandrop API", version="0.1.0")
 store = FileSceneStore()
 
 

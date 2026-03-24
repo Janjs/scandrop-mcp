@@ -4,9 +4,9 @@ from pathlib import Path
 
 import trimesh
 
-from scandrop_mcp.pipeline.stage_b import derive_scene_graph
-from scandrop_mcp.schemas import StageBParams
-from scandrop_mcp.store import FileSceneStore
+from scandrop.pipeline.stage_b import derive_scene_graph
+from scandrop.schemas import StageBParams
+from scandrop.store import FileSceneStore
 
 
 def load_merged_mesh(path: str) -> trimesh.Trimesh:

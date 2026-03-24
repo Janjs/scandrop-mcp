@@ -11,7 +11,7 @@ from shapely import contains_xy
 from shapely.geometry import GeometryCollection, MultiPoint, MultiPolygon, Polygon
 from shapely.geometry.polygon import orient
 
-from scandrop_mcp.schemas import (
+from scandrop.schemas import (
     AABBModel,
     OBBModel,
     ObstacleModel,

@@ -125,6 +125,8 @@ export async function POST(request: Request): Promise<Response> {
     const result = streamText({
       model: google("gemini-2.5-flash"),
       system: `You are Scandrop, a helpful AI spatial assistant. You help users analyze 3D rooms and test out furniture placements. Try to answer concisely and natively without outputting raw JSON data when possible. Keep formatting simple.
+Never mention internal tool names, connector names, or implementation details in user-facing responses. Just explain outcomes.
+If the user provides a local .glb/.gltf path and asks to load/import/onboard a scene, call the one-step onboarding tool immediately.
 When a user asks about placing common furniture (e.g. bedside table, desk, TV stand, bookshelf, sofa, rug, coffee table etc.) without specifying exact dimensions, estimate typical real-world dimensions in meters from your training data and proceed to call the relevant tool immediately. Do NOT ask the user for dimensions of common furniture items — just use reasonable defaults and mention the assumed dimensions in your response.
 When answering placement/fit questions using tool results, return only the single best placement by default (even if multiple exist), with exact location (x, y, z) and rotation/yaw in radians rounded to 2 decimals. Then ask if the user wants more placement options.
 Only provide multiple placements when the user explicitly asks for more than one option.
@@ -140,13 +142,24 @@ ${sceneId ? `The user is currently viewing the scene with ID: ${sceneId}` : "No 
       },
       stopWhen: stepCountIs(5),
       tools: {
+        onboard_scene: tool({
+          description: "Onboard a scene from a local .glb/.gltf path and return scene_id, version, processing status, and summary.",
+          parameters: z.object({
+            path: z.string().describe("Absolute local path to a .glb or .gltf file")
+          }),
+          // @ts-expect-error tool typing mismatch
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          execute: async (args: any) => {
+            return await callMcpTool("onboard_scene", args);
+          }
+        }),
         list_scenes: tool({
           description: "List all available scanned scenes in the workspace.",
           parameters: z.object({}),
           // @ts-expect-error tool typing mismatch
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           execute: async (args: any) => {
-            return await callMcpTool("scandrop.list_scenes", args);
+            return await callMcpTool("list_scenes", args);
           }
         }),
         get_scene_summary: tool({
@@ -157,7 +170,7 @@ ${sceneId ? `The user is currently viewing the scene with ID: ${sceneId}` : "No 
           // @ts-expect-error tool typing mismatch
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           execute: async (args: any) => {
-            return await callMcpTool("scandrop.get_scene_summary", args);
+            return await callMcpTool("get_scene_summary", args);
           }
         }),
         get_processing_status: tool({
@@ -168,7 +181,7 @@ ${sceneId ? `The user is currently viewing the scene with ID: ${sceneId}` : "No 
           // @ts-expect-error tool typing mismatch
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           execute: async (args: any) => {
-            return await callMcpTool("scandrop.get_processing_status", args);
+            return await callMcpTool("get_processing_status", args);
           }
         }),
         find_free_spaces: tool({
@@ -215,7 +228,7 @@ ${sceneId ? `The user is currently viewing the scene with ID: ${sceneId}` : "No 
           // @ts-expect-error tool typing mismatch
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           execute: async (args: any) => {
-            return await callMcpTool("scandrop.find_free_spaces", normalizeFindFreeSpacesArgs(args, sceneId));
+            return await callMcpTool("find_free_spaces", normalizeFindFreeSpacesArgs(args, sceneId));
           }
         }),
         check_fit: tool({
@@ -232,7 +245,7 @@ ${sceneId ? `The user is currently viewing the scene with ID: ${sceneId}` : "No 
           // @ts-expect-error tool typing mismatch
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           execute: async (args: any) => {
-            return await callMcpTool("scandrop.check_fit", args);
+            return await callMcpTool("check_fit", args);
           }
         })
       }

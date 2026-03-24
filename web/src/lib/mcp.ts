@@ -52,7 +52,7 @@ export async function callMcpTool(toolName: string, args: ToolArgs = {}): Promis
 
   const transport = new StdioClientTransport({
     command: getPythonBin(),
-    args: ["-m", "scandrop_mcp.main"],
+    args: ["-m", "scandrop.main"],
     cwd: getRepoRoot(),
     env: {
       ...process.env,

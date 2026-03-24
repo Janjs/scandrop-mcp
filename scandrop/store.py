@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import json
+import os
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 from typing import Literal
 
-from scandrop_mcp.schemas import (
+from scandrop.schemas import (
     ProcessingStatusResponse,
     SceneGraphModel,
     SceneListEntry,
@@ -44,9 +45,29 @@ def _polygon_area_xz(points: list[tuple[float, float]]) -> float:
     return abs(area) * 0.5
 
 
+def _repo_root() -> Path:
+    return Path(__file__).resolve().parents[1]
+
+
+def _default_base_dir() -> Path:
+    configured = os.environ.get("SCANDROP_DATA_DIR")
+    if configured:
+        path = Path(configured).expanduser()
+        if not path.is_absolute():
+            path = (_repo_root() / path).resolve()
+        return path
+    return (_repo_root() / "data" / "scenes").resolve()
+
+
 class FileSceneStore:
-    def __init__(self, base_dir: str | Path = "./data/scenes") -> None:
-        self.base_dir = Path(base_dir)
+    def __init__(self, base_dir: str | Path | None = None) -> None:
+        if base_dir is None:
+            resolved_base = _default_base_dir()
+        else:
+            resolved_base = Path(base_dir).expanduser()
+            if not resolved_base.is_absolute():
+                resolved_base = (_repo_root() / resolved_base).resolve()
+        self.base_dir = resolved_base
         self.base_dir.mkdir(parents=True, exist_ok=True)
 
     def _scene_dir(self, scene_id: str) -> Path:

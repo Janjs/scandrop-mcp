@@ -54,7 +54,7 @@ export async function POST(request: Request): Promise<NextResponse> {
       }
 
       const savedPath = await saveUpload(file);
-      const data = (await callMcpTool("scandrop.create_scene_from_gltf", { path: savedPath })) as Record<string, unknown>;
+      const data = (await callMcpTool("create_scene_from_gltf", { path: savedPath })) as Record<string, unknown>;
       return NextResponse.json({
         ...data,
         model_path: savedPath,
@@ -63,7 +63,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     }
 
     const payload = jsonRequestSchema.parse(await request.json());
-    const data = await callMcpTool("scandrop.create_scene_from_gltf", { path: payload.path });
+    const data = await callMcpTool("create_scene_from_gltf", { path: payload.path });
     return NextResponse.json(data);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to import scene";
