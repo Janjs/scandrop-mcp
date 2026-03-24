@@ -1,11 +1,40 @@
 # scandrop
 
-Minimal but real MCP server that ingests a GLB/GLTF scan and exposes deterministic spatial tools over a compact derived scene graph.
+Minimal but real MCP server that ingests a GLB/GLTF floorplan scan (for example captured with Polycam https://poly.cam/) and exposes deterministic spatial tools over a compact derived scene graph.
 
 <p>
   <img src="docs/screenshots/claude-ingest-pipeline.png" alt="Claude Desktop ingest pipeline" width="49%" />
   <img src="docs/screenshots/claude-bedside-placement.png" alt="Claude Desktop bedside placement result" width="49%" />
 </p>
+
+## Install
+
+```bash
+uv sync --python 3.12
+```
+
+## Claude Desktop setup
+
+Use `scandrop` in combination with the `filesystem` MCP so Claude can both run spatial tools and read your local `.glb/.gltf` files.
+
+After `uv sync`, configure Claude Desktop (`claude_desktop_config.json`) with both servers:
+
+```json
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/<username>/Downloads", "/Users/<username>/Desktop"]
+    },
+    "scandrop": {
+      "command": "uv",
+      "args": ["run", "--project", "/absolute/path/to/scandrop-mcp", "python", "-m", "scandrop.main"]
+    }
+  }
+}
+```
+
+Restart Claude Desktop after saving the config.
 
 ## What scandrop MCP does
 
@@ -20,12 +49,6 @@ Minimal but real MCP server that ingests a GLB/GLTF scan and exposes determinist
   - `./data/scenes/{scene_id}/v{version}/params.json`
 - Exposes deterministic MCP tools (`check_fit`, `find_free_spaces`) so the model never does geometry math.
 - Provides optional FastAPI debug endpoints.
-
-## Install
-
-```bash
-uv sync --python 3.12
-```
 
 ## Quickstart
 
@@ -52,7 +75,7 @@ python -m scandrop.main
 
 ### 2b) Configure MCP clients (e.g., Claude Desktop)
 
-After `uv sync`, most MCP clients can launch this server via `uv run` from the project directory.
+After `uv sync`, most MCP clients can launch this server via `uv run` from the project directory. In Claude Desktop, keep this server enabled together with `filesystem`.
 
 Claude Desktop config (`claude_desktop_config.json`):
 
@@ -61,7 +84,7 @@ Claude Desktop config (`claude_desktop_config.json`):
   "mcpServers": {
     "scandrop": {
       "command": "uv",
-      "args": ["run", "--project", "/absolute/path/to/scandrop", "python", "-m", "scandrop.main"]
+      "args": ["run", "--project", "/absolute/path/to/scandrop-mcp", "python", "-m", "scandrop.main"]
     }
   }
 }
@@ -85,7 +108,7 @@ Generic MCP client config shape:
 In Claude Desktop, users only need to provide a path to the 3D model:
 
 ```text
-Please onboard this 3D model: /Users/jan/Downloads/test.glb
+Please onboard this 3D model: /Users/<username>/Downloads/test.glb
 ```
 
 Scandrop handles scene creation, status, and summary internally via `onboard_scene`.
@@ -104,11 +127,11 @@ Use this flow when you have both connectors enabled:
 - `scandrop` MCP server (this repo)
 - A GLB/GLTF scan export (for example from [Polycam](https://poly.cam/))
 
-1. Place your `.glb` file in a folder exposed by filesystem, for example `/Users/jan/Downloads/test.glb`.
+1. Place your `.glb` file in a folder exposed by filesystem, for example `/Users/<username>/Downloads/test.glb`.
 2. Send this prompt:
 
 ```text
-Please onboard this 3D model: /Users/jan/Downloads/test.glb
+Please onboard this 3D model: /Users/<username>/Downloads/test.glb
 ```
 
 3. The assistant runs onboarding in one step and returns:
