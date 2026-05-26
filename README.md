@@ -2,6 +2,8 @@
 
 Minimal but real MCP server that ingests a GLB/GLTF floorplan scan (for example captured with Polycam https://poly.cam/) and exposes deterministic spatial tools over a compact derived scene graph.
 
+**Live demo:** [scandrop.janjs.dev](https://scandrop.janjs.dev/)
+
 <p>
   <img src="docs/screenshots/claude-ingest-pipeline.png" alt="Claude Desktop ingest pipeline" width="49%" />
   <img src="docs/screenshots/claude-bedside-placement.png" alt="Claude Desktop bedside placement result" width="49%" />
@@ -355,14 +357,14 @@ A UI app is included at `./web` with:
 - derived spatial representation viewer (floor + obstacles)
 - MCP-backed chat panel with prompt chips
 
-![Scandrop web bedside table placement](docs/screenshots/web-bedside-placement.png)
+Try the hosted demo at [scandrop.janjs.dev](https://scandrop.janjs.dev/), or run it locally:
 
-Run it:
+![Scandrop web bedside table placement](docs/screenshots/web-bedside-placement.png)
 
 ```bash
 cd web
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 Then open `http://localhost:3000`.
