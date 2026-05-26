@@ -28,7 +28,8 @@ COPY pyproject.toml uv.lock README.md ./
 COPY scandrop/ ./scandrop/
 
 ENV UV_COMPILE_BYTECODE=1 \
-    UV_LINK_MODE=copy
+    UV_LINK_MODE=copy \
+    UV_PYTHON_INSTALL_DIR=/app/.uv-python
 
 RUN uv sync --frozen --no-dev \
     && /app/.venv/bin/python -c "from scandrop.main import main"
@@ -46,6 +47,7 @@ RUN apt-get update \
 WORKDIR /app
 
 COPY --from=python-deps /app/.venv /app/.venv
+COPY --from=python-deps /app/.uv-python /app/.uv-python
 COPY --from=python-deps /app/scandrop /app/scandrop
 COPY --from=python-deps /app/pyproject.toml /app/pyproject.toml
 
@@ -64,7 +66,7 @@ ENV NODE_ENV=production \
     PYTHONPATH=/app \
     PATH="/app/.venv/bin:${PATH}"
 
-RUN test -x /app/.venv/bin/python
+RUN /app/.venv/bin/python -c "from scandrop.main import main"
 
 WORKDIR /app/web
 
