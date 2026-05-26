@@ -8,6 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: Production
     env:
       COOLIFY_WEBHOOK: ${{ secrets.COOLIFY_WEBHOOK }}
       COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
@@ -15,8 +16,8 @@ jobs:
       - name: Validate secrets
         run: |
           if [ -z "$COOLIFY_WEBHOOK" ] || [ -z "$COOLIFY_TOKEN" ]; then
-            echo "Missing repository secrets: COOLIFY_WEBHOOK and/or COOLIFY_TOKEN"
-            echo "Add them at Settings → Secrets and variables → Actions"
+            echo "Missing Production environment secrets: COOLIFY_WEBHOOK and/or COOLIFY_TOKEN"
+            echo "Add them at Settings → Environments → Production → Environment secrets"
             exit 1
           fi
 
