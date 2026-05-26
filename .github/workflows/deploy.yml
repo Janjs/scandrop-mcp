@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+
+concurrency:
+  group: coolify-deploy-main
+  cancel-in-progress: true
 
 jobs:
   deploy:
