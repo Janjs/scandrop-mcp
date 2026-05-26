@@ -8,8 +8,19 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      COOLIFY_WEBHOOK: ${{ secrets.COOLIFY_WEBHOOK }}
+      COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
     steps:
+      - name: Validate secrets
+        run: |
+          if [ -z "$COOLIFY_WEBHOOK" ] || [ -z "$COOLIFY_TOKEN" ]; then
+            echo "Missing repository secrets: COOLIFY_WEBHOOK and/or COOLIFY_TOKEN"
+            echo "Add them at Settings → Secrets and variables → Actions"
+            exit 1
+          fi
+
       - name: Trigger Coolify deployment
         run: |
-          curl --fail --request GET "${{ secrets.COOLIFY_WEBHOOK }}" \
-            --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
+          curl --fail --request GET "$COOLIFY_WEBHOOK" \
+            --header "Authorization: Bearer $COOLIFY_TOKEN"
