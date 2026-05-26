@@ -23,7 +23,8 @@ COPY scandrop/ ./scandrop/
 ENV UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy
 
-RUN uv sync --frozen --no-dev
+RUN uv sync --frozen --no-dev \
+    && /app/.venv/bin/python -c "from scandrop.main import main"
 
 FROM node:20-bookworm-slim AS runtime
 
@@ -52,7 +53,10 @@ ENV NODE_ENV=production \
     SCANDROP_REPO_ROOT=/app \
     SCANDROP_PYTHON=/app/.venv/bin/python \
     SCANDROP_DATA_DIR=/app/data/scenes \
+    PYTHONPATH=/app \
     PATH="/app/.venv/bin:${PATH}"
+
+RUN test -x /app/.venv/bin/scandrop-mcp
 
 WORKDIR /app/web
 

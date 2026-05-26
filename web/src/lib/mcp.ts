@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import path from "node:path";
 
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
@@ -11,6 +12,20 @@ function getRepoRoot(): string {
 
 function getPythonBin(): string {
   return process.env.SCANDROP_PYTHON ?? path.join(getRepoRoot(), ".venv", "bin", "python");
+}
+
+function getMcpLaunchSpec(): { command: string; args: string[] } {
+  const repoRoot = getRepoRoot();
+  const entrypoint = path.join(repoRoot, ".venv", "bin", "scandrop-mcp");
+
+  if (fs.existsSync(entrypoint)) {
+    return { command: entrypoint, args: [] };
+  }
+
+  return {
+    command: getPythonBin(),
+    args: ["-m", "scandrop.main"]
+  };
 }
 
 function parseToolResult(result: unknown): unknown {
@@ -50,13 +65,18 @@ export async function callMcpTool(toolName: string, args: ToolArgs = {}): Promis
     }
   );
 
+  const repoRoot = getRepoRoot();
+  const launchSpec = getMcpLaunchSpec();
+
   const transport = new StdioClientTransport({
-    command: getPythonBin(),
-    args: ["-m", "scandrop.main"],
-    cwd: getRepoRoot(),
+    command: launchSpec.command,
+    args: launchSpec.args,
+    cwd: repoRoot,
     env: {
       ...process.env,
-      PYTHONUNBUFFERED: "1"
+      PYTHONUNBUFFERED: "1",
+      PYTHONPATH: repoRoot,
+      SCANDROP_REPO_ROOT: repoRoot
     }
   });
 

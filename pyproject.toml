@@ -21,6 +21,9 @@ dependencies = [
   "uvicorn>=0.30.0",
 ]
 
+[project.scripts]
+scandrop-mcp = "scandrop.main:main"
+
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["scandrop*"]
