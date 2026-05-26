@@ -51,6 +51,7 @@ COPY --from=python-deps /app/pyproject.toml /app/pyproject.toml
 
 COPY --from=web-builder /app/web/.next/standalone ./web/
 COPY --from=web-builder /app/web/.next/static ./web/.next/static
+COPY --from=web-builder /app/web/public ./web/public
 
 RUN mkdir -p /app/data/uploads /app/data/scenes
 
@@ -63,7 +64,7 @@ ENV NODE_ENV=production \
     PYTHONPATH=/app \
     PATH="/app/.venv/bin:${PATH}"
 
-RUN test -x /app/.venv/bin/scandrop-mcp
+RUN test -x /app/.venv/bin/python
 
 WORKDIR /app/web
 

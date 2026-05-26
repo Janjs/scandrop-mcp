@@ -15,15 +15,15 @@ function getPythonBin(): string {
 }
 
 function getMcpLaunchSpec(): { command: string; args: string[] } {
-  const repoRoot = getRepoRoot();
-  const entrypoint = path.join(repoRoot, ".venv", "bin", "scandrop-mcp");
-
-  if (fs.existsSync(entrypoint)) {
-    return { command: entrypoint, args: [] };
+  const pythonBin = getPythonBin();
+  if (!fs.existsSync(pythonBin)) {
+    throw new Error(
+      `Python interpreter not found at ${pythonBin}. Set SCANDROP_PYTHON to the venv python binary.`
+    );
   }
 
   return {
-    command: getPythonBin(),
+    command: pythonBin,
     args: ["-m", "scandrop.main"]
   };
 }
