@@ -117,8 +117,7 @@ function normalizeFindFreeSpacesArgs(args: FindFreeSpacesArgs, activeSceneId?: s
 }
 
 export async function POST(request: Request): Promise<Response> {
-  try {
-    const payload = (await request.json()) as ChatRequestBody;
+  const payload = (await request.json()) as ChatRequestBody;
     const messages = Array.isArray(payload.messages) ? payload.messages : [];
     const sceneId = payload.sceneId;
 
@@ -251,9 +250,5 @@ ${sceneId ? `The user is currently viewing the scene with ID: ${sceneId}` : "No 
       }
     });
 
-    return result.toUIMessageStreamResponse({ sendReasoning: true });
-  } catch (err: any) {
-    require("fs").writeFileSync("error.log", err?.stack || err?.toString() || "Unknown error");
-    throw err;
-  }
+  return result.toUIMessageStreamResponse({ sendReasoning: true });
 }
