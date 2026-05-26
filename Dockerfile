@@ -13,7 +13,7 @@ COPY web/ ./
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN pnpm build
 
-FROM ghcr.io/astral-sh/uv:python3.12-bookworm AS python-deps
+FROM python:3.12-slim-bookworm AS python-deps
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -21,6 +21,8 @@ RUN apt-get update \
       libglib2.0-0 \
       libgomp1 \
     && rm -rf /var/lib/apt/lists/*
+
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 WORKDIR /app
 
@@ -29,25 +31,27 @@ COPY scandrop/ ./scandrop/
 
 ENV UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
-    UV_PYTHON_INSTALL_DIR=/app/.uv-python
+    UV_PYTHON_DOWNLOADS=0
 
 RUN uv sync --frozen --no-dev \
     && /app/.venv/bin/python -c "from scandrop.main import main"
 
-FROM node:20-bookworm-slim AS runtime
+FROM python:3.12-slim-bookworm AS runtime
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
       ca-certificates \
+      curl \
       libgl1 \
       libglib2.0-0 \
       libgomp1 \
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y --no-install-recommends nodejs \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
 COPY --from=python-deps /app/.venv /app/.venv
-COPY --from=python-deps /app/.uv-python /app/.uv-python
 COPY --from=python-deps /app/scandrop /app/scandrop
 COPY --from=python-deps /app/pyproject.toml /app/pyproject.toml
 
