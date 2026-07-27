@@ -12,7 +12,7 @@
   "dependencies": {
     "@ai-sdk/google": "^3.0.30",
     "@ai-sdk/react": "^3.0.99",
-    "@modelcontextprotocol/sdk": "^1.26.0",
+    "@modelcontextprotocol/sdk": "^1.30.0",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-avatar": "^1.1.11",
     "@radix-ui/react-collapsible": "^1.1.12",
@@ -47,7 +47,7 @@
     "media-chrome": "^4.17.2",
     "motion": "^12.34.2",
     "nanoid": "^5.1.6",
-    "next": "^15.5.6",
+    "next": "^16.2.12",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-jsx-parser": "^2.4.1",
@@ -68,8 +68,23 @@
     "autoprefixer": "^10.4.21",
     "eslint": "^8.57.1",
     "eslint-config-next": "^15.5.6",
-    "postcss": "^8.5.6",
+    "postcss": "^8.5.23",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.9.3"
+  },
+  "pnpm": {
+    "overrides": {
+      "ansi-to-react>linkify-it": "6.1.0",
+      "@eslint/config-array>minimatch": "10.2.5",
+      "@eslint/eslintrc>minimatch": "10.2.5",
+      "@humanwhocodes/config-array>minimatch": "10.2.5",
+      "eslint>minimatch": "10.2.5",
+      "eslint-plugin-import>minimatch": "10.2.5",
+      "eslint-plugin-jsx-a11y>minimatch": "10.2.5",
+      "eslint-plugin-react>minimatch": "10.2.5",
+      "glob>minimatch": "10.2.5",
+      "next>postcss": "8.5.23",
+      "next>sharp": "0.35.3"
+    }
   }
 }
