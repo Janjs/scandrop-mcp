@@ -6,6 +6,10 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  contents: read
+  packages: write
+
 concurrency:
   group: coolify-deploy-main
   cancel-in-progress: true
@@ -13,20 +17,33 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: Production
     env:
-      COOLIFY_WEBHOOK: ${{ secrets.COOLIFY_WEBHOOK }}
-      COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
+      COOLIFY_DEPLOY_HOOK: ${{ secrets.COOLIFY_DEPLOY_HOOK }}
+      COOLIFY_DEPLOY_TOKEN: ${{ secrets.COOLIFY_DEPLOY_TOKEN }}
     steps:
-      - name: Validate secrets
-        run: |
-          if [ -z "$COOLIFY_WEBHOOK" ] || [ -z "$COOLIFY_TOKEN" ]; then
-            echo "Missing Production environment secrets: COOLIFY_WEBHOOK and/or COOLIFY_TOKEN"
-            echo "Add them at Settings → Environments → Production → Environment secrets"
-            exit 1
-          fi
+      - uses: actions/checkout@v4
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/janjs/scandrop-mcp:latest
+            ghcr.io/janjs/scandrop-mcp:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Trigger Coolify deployment
         run: |
-          curl --fail --request GET "$COOLIFY_WEBHOOK" \
-            --header "Authorization: Bearer $COOLIFY_TOKEN"
+          curl --fail --silent --show-error \
+            -X POST \
+            -H "Authorization: Bearer ${COOLIFY_DEPLOY_TOKEN}" \
+            "${COOLIFY_DEPLOY_HOOK}"
